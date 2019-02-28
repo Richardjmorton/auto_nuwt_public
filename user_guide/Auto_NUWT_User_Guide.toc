@@ -1,0 +1,20 @@
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}
+\contentsline {section}{\numberline {2}Setup and Installation}{4}{section.2}
+\contentsline {section}{\numberline {3}Extracting data slits}{4}{section.3}
+\contentsline {section}{\numberline {4}Running NUWT}{4}{section.4}
+\contentsline {section}{\numberline {5}Plotting Results}{5}{section.5}
+\contentsline {section}{\numberline {6}Extracting results for further analysis}{6}{section.6}
+\contentsline {subsection}{\numberline {6.1}Output Variables}{6}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Flattening Structures}{7}{subsection.6.2}
+\contentsline {section}{\numberline {7}To do}{7}{section.7}
+\contentsline {section}{\numberline {A}Appendix A: NUWT Output Structures}{7}{appendix.A}
+\contentsline {subsection}{\numberline {A.1}located}{7}{subsection.A.1}
+\contentsline {subsection}{\numberline {A.2}threads}{8}{subsection.A.2}
+\contentsline {subsection}{\numberline {A.3}fft\_spec}{9}{subsection.A.3}
+\contentsline {subsection}{\numberline {A.4}fft\_peaks}{10}{subsection.A.4}
+\contentsline {subsection}{\numberline {A.5}bulk\_stats}{11}{subsection.A.5}
+\contentsline {section}{\numberline {B}Appendix B: Program Headers}{12}{appendix.B}
+\contentsline {subsection}{\numberline {B.1}\textit {run\_nuwt.pro}}{12}{subsection.B.1}
+\contentsline {subsection}{\numberline {B.2}\textit {plot\_nuwt\_peaks.pro}}{14}{subsection.B.2}
+\contentsline {subsection}{\numberline {B.3}\textit {plot\_nuwt\_wave\_hist.pro}}{15}{subsection.B.3}
+\contentsline {subsection}{\numberline {B.4}\textit {plot\_nuwt\_fft\_results.pro}}{17}{subsection.B.4}

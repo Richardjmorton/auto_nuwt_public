@@ -1,0 +1,20 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Setup and Installation}{}% 2
+\BOOKMARK [1][-]{section.3}{Extracting data slits}{}% 3
+\BOOKMARK [1][-]{section.4}{Running NUWT}{}% 4
+\BOOKMARK [1][-]{section.5}{Plotting Results}{}% 5
+\BOOKMARK [1][-]{section.6}{Extracting results for further analysis}{}% 6
+\BOOKMARK [2][-]{subsection.6.1}{Output Variables}{section.6}% 7
+\BOOKMARK [2][-]{subsection.6.2}{Flattening Structures}{section.6}% 8
+\BOOKMARK [1][-]{section.7}{To do}{}% 9
+\BOOKMARK [1][-]{appendix.A}{Appendix A: NUWT Output Structures}{}% 10
+\BOOKMARK [2][-]{subsection.A.1}{located}{appendix.A}% 11
+\BOOKMARK [2][-]{subsection.A.2}{threads}{appendix.A}% 12
+\BOOKMARK [2][-]{subsection.A.3}{fft\137spec}{appendix.A}% 13
+\BOOKMARK [2][-]{subsection.A.4}{fft\137peaks}{appendix.A}% 14
+\BOOKMARK [2][-]{subsection.A.5}{bulk\137stats}{appendix.A}% 15
+\BOOKMARK [1][-]{appendix.B}{Appendix B: Program Headers}{}% 16
+\BOOKMARK [2][-]{subsection.B.1}{run\137nuwt.pro}{appendix.B}% 17
+\BOOKMARK [2][-]{subsection.B.2}{plot\137nuwt\137peaks.pro}{appendix.B}% 18
+\BOOKMARK [2][-]{subsection.B.3}{plot\137nuwt\137wave\137hist.pro}{appendix.B}% 19
+\BOOKMARK [2][-]{subsection.B.4}{plot\137nuwt\137fft\137results.pro}{appendix.B}% 20

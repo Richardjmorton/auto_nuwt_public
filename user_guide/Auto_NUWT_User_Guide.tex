@@ -1,0 +1,421 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage[font={small}]{caption}
+\usepackage{setspace}
+\usepackage[margin=20mm]{geometry}
+\usepackage{listings}
+\usepackage{wrapfig}
+
+\usepackage{scrextend}
+%\addtokomafont{labelinglabel}{\sffamily}
+
+\usepackage{listings}
+
+\usepackage{fancyhdr} % Custom headers and footers
+\usepackage{hyperref}
+\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,
+	filecolor=magenta,      
+	urlcolor=cyan,
+}
+
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{\textit{Auto-NUWT User Guide}} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+%\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+%\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+%\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\newcommand{\horrule}[1]{\rule{\linewidth}{#1}} % Create horizontal rule command with 1 argument of height
+
+\title{	
+\normalfont \normalsize 
+\textsc{Northumbria University: Department of Mathematics, Physics \& Electrical Engineering} \\ [25pt] % Your university, school and/or department name(s)
+\horrule{0.5pt} \\[0.4cm] % Thin top horizontal rule
+\huge Auto-NUWT User Guide \\ % The assignment title
+\horrule{2pt} \\[0.5cm] % Thick bottom horizontal rule
+}
+
+\author{Micah Weberg \\ Richard Morton* \\ James McLaughlin} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+
+\newlength\tindent
+\setlength{\tindent}{\parindent}
+\setlength{\parindent}{0pt}
+\renewcommand{\indent}{\hspace*{\tindent}}
+
+
+\begin{document}
+\maketitle % Print the title
+
+\vspace{10cm}
+
+\begin{center}
+{Version 2}\\
+* Contact: richard.morton@northumbria.ac.uk 
+\end{center}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+\underline{\textbf{History}}\\
+
+Version 2 - 2018/04 - Pre-public release of Auto-NUWT.
+
+Version 2 - 2018/06 - Fixed a couple of typos and added more program headers to Appendix B 
+
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+The Northumbria Wave Tracking (NUWT) code is a program designed to identify, track, and measure transverse wave motions within a series of images. This document describes, in short, the setup and operation of the automated version of NUWT. High-level details about how NUWT works and our efforts to validate the code can be found in the paper Weberg et al., 2018, ApJ, 852, 57 \\
+
+NUWT contains a comprehensive suite of programs and include procedures for extracting td-diagrams from calibrated data cubes, tracking a measuring transverse waves, and then plotting the results. NUWT also includes convenience functions for downloading SDO /AIA data and analyzing a large number of data slits. \\
+
+This is a pre-public version of the code and the documentation (as well as this guide) may be incomplete in places. If you spot any mistakes or have any questions or suggestions please email \textit{micah.weberg@northumbria.ac.uk} or \textit{richard.morton@northumbria.ac.uk} .
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Setup and Installation}
+NUWT is almost entirely self-contained and only requires IDL v8.4 (or higher) to run. To ''install'', simply unzip the NUWT source code to a location where IDL can find it (or add the NUWT folder to your IDL path as part of your startup script). All core NUWT scripts are included in the \textit{/NUWT} subdirectory. \\
+
+If you wish to take advantage of the convenience functions for downloading and preprocessing SDO data, you will also need a working installation of the SolarSoft (SSW) IDL library which is available online at \url{http://www.lmsal.com/solarsoft/}. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Extracting data slits}
+This version of NUWT contains two procedures for extracting data slits from an input 3D datacube, \textit{nuwt\_diag\_slit.pro} and \textit{nuwt\_arc\_slit.pro}. Here are a couple of example uses:\newline
+
+\hspace{0.5cm} \texttt{IDL\textgreater nuwt\_diag\_slit, datacube, output\_slit, x1=100, x2=500, y1=100, y2=500} \\ 
+\hspace{0.5cm} \texttt{IDL\textgreater nuwt\_arc\_slit, datacube, output\_slit, radius=1750, start\_ang=85, subtend=10} \\
+
+Angles are measured in units of degrees. If any of the coordinate values are missing, the programs will enter an interactive mode where the user may select the slit for an example image of the input datacube. You may also set the \textit{/noopen} option to suppress plotting altogether. \\ 
+
+\textbf{Important note:} Since NUWT is generalized to work with any set of input images, \textit{nuwt\_arc\_slit.pro} uses the standard definition of polar coordinates in which angles are measured anticlockwise from the positive x-axis. This is different from the ''position angle'' commonly used in solar physics which is measured anticlockwise from the solar north pole.
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\section{Running NUWT}
+All NUWT actually needs to run is a time-distance diagram extracted from a series of images. For best results, it is recommended to also input error estimations for the td-diagram as well as the values for the spatial resolution and temporal cadence of the instrument which collected the data. \\
+
+The main NUWT procedure is called \textit{run\_nuwt.pro}. A basic call will look like this: \\
+
+\hspace{0.5cm} \texttt{IDL\textgreater run\_nuwt, td, errors=err\_img, res=data\_res, cad=data\_cad} \\
+
+Where \textit{td} is a time-distance diagram (or a stack of related td-diagrams), \textit{err\_img} is an image containing the estimated error values, \textit{res} is the spatial resolution (in [arcsec]), and \textit{cad} is the temporal cadence (in [s]) of the input data. If td is a stack of identically sized td-diagrams, such as a series of slits taken at different locations along a feature, NUWT will automatically loop over each slit. \\
+
+Below are a few important parameters and keywords for \textit{run\_nuwt.pro}: \\
+
+\begin{labeling}{pad\_length}
+\item [grad] Gradient cut-off value used to select local maxima (or minima) in the td-diagram. The default value is 0.5 (good for unsharp masked data)
+\item [/invert] If set, will invert the input td-diagram and track the local MINIMA in the image instead of the local maxima. Please set any invalid intensity values to a value of -999 or less before using running NUWT with the /invert option
+\item [/gauss] If set, will fit the intensity cross-section of each peak to find the sub-pixel location.
+\item [min\_tlen] Minimum ''thread'' length used to filter the features found by NUWT. The default value is 20 data points.
+\item [/pad\_fft] If set, will use zero padding when running an FFT on each thread
+\item [pad\_length] If set, will use zero padding when running an FFT on each thread
+\item [slit\_meta] Metadata structure outputted by one of the NUWT slit extraction procedures. For SDO/AIA data, this may include res and cad values calculated from the data (thereby removing the need to directly track and pass the values to run\_nuwt.pro yourself.
+%\item [/AIA] If set, will estimate the error values for SDO/AIA data following the method of Yuan \& Nakariakov, 2012, A\&A and using the %calibration values given by Boerner et al., 2012, Sol. Phys.
+%\item [wavelength] Wavelength of input SDO/AIA data (needed for calculating intensity errors using the /AIA keyword)
+\end{labeling}
+
+Please see the header text in run\_nuwt.pro (in the /automation subfolder) for more information and additional parameters. \\
+
+By default, NUWT will save all of the results to a file in your current working directory. The default filename will be of the form, \\
+
+\hspace{0.5cm} \texttt{nuwt\_results\_run\_YYYYMMDD\_hhmm.sav} \\
+
+Where \textit{YYYYMMDD\_hhmm} is the date and time of when the program was run (note, if NUWT is run twice within the same minute, the output file \underline{will} be overwritten by default). NUWT also stores the results from the most recent run in a set of IDL COMMON blocks. These COMMON blocks make plotting easy and reduces the need to juggle multiple output data structures. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Plotting Results}
+NUWT includes a number of procedures for quickly plotting the results. All of the plotting procedures make use of COMMON block data. Therefore, you must either run the plotting scripts in the same IDL session as you ran \textit{run\_nuwt.pro} (and before running a second set of data) or load the results into the COMMON blocks. The program, \textit{restore\_nuwt\_common\_data.pro} may be used to load results from a previous run. Typically you will use the procedure as such, \\
+
+\hspace{0.5cm} \texttt{IDL\textgreater restore\_nuwt\_common\_data, 'filename'} \\
+	
+If the results file you wish to load is not in your current working directory, you will need to give the full path and filename. The \textit{restore\_nuwt\_common\_data.pro} procedure also has optional outputs for each of the NUWT data structures (see section 6 and appendix A for more details concerning the structure of the output variables). \\
+
+Below is a list of the most useful plotting procedures: \\
+\begin{labeling}{plot\_nuwt\_compare\_runs}
+\item [plot\_nuwt\_peaks] Plots the input td-diagram along with the located peaks and the tracked threads.
+\item [plot\_nuwt\_wave\_hist] Plots histograms of the waves found by NUWT. You may also input a structure of simulated wave values to compare with. By default, log-normal parameter distributions calculated from the data will be overplotted (can be hidden by setting the \textit{/hide\_log\_norm\_dist keyword}).
+\item [plot\_nuwt\_power\_spec] Plots the amplitude, velocity amplitude, and power spectral densities of all waves found by NUWT. Note, the power values can be normalized to show the median or mean power observed.
+\item [plot\_nuwt\_fft\_results] Makes a series of multi-panel plots showing the showing the maxima locations, fit residuals, FFT spectrum, and wave parameters for each thread detected by NUWT. WARNING: this program will take a long time plot all of the results – you can use the \textit{plot\_indices}, \textit{first\_thread}, \& \textit{last\_thread} parameters to only plot a subset of the results.
+\item [plot\_nuwt\_compare\_runs] Produces a set of plots comparing the primary wave results of two separate NUWT runs or a set of simulated waves and the corresponding results from NUWT.
+\end{labeling}
+
+Please see the header text of each program (in Appendix B) for a more complete list of available parameters and keyword options. All plotting programs can be found in the \textit{/plotting\_results} subfolder. Note, the default plot filenames DO NOT append the date and time. Please be sure to rename your files before making plots for a new run (unless you wish to overwrite the previous plot). All of the plotting routines have both \textit{save\_folder} and \textit{filename} as optional parameters.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Extracting results for further analysis}
+\subsection{Output Variables}
+Each \textit{nuwt\_results} save file contains 6 variables. With the exception of the \textit{nuwt\_meta structure}, each variable is actually a list of multiple arrays, lists, or structures. The first element (index 0) of each list contains the results for the first slit in the given NUWT run, the second element of each list corresponds to the second slit, and so on and so forth. The NUWT output variables will always be given as a list at the very top level, even if there is only a single slit in your NUWT run. \\
+
+The NUWT output variables can be loaded using either a standard IDL, \texttt{\textit{restore, 'filename'}} command or by using the optional outputs from \textit{restore\_nuwt\_common\_data.pro}. It is \underline{not} recommended to try accessing the COMMON data blocks directly unless you are familiar with how to use them (IDL can be a bit temperamental with COMMON block definitions)
+
+The output variables are as follows: \\
+
+\begin{labeling}{nuwt\_bulk\_stats}
+\item [nuwt\_meta] Metadata about the NUWT run including data and time ran, key parameter values, and information about the data slit (when available)
+\item [nuwt\_located] Structure of 2D arrays with the intensity values and sub-pixel locations of the local maxima (or minima) found in the input td-diagram (note: locations are given in units of pixels)
+\item [nuwt\_threads] Array of structures with the time series with the positions of the ''threads'' connected and tracked by NUWT.
+\item [nuwt\_fft\_spec]	List of structures with the frequency spectra output by the FFT for each thread (note: will automatically convert the spectra to physically sensible units if \textit{res} and \textit{cad} are given to NUWT at runtime).
+\item [nuwt\_fft\_peaks] Array of structures with the wave parameters for all of the significant peaks found in the FFT spectra. Up to four different waves may be returned for each thread. (again, if NUWT knows \textit[res] and \textit[cad], it will convert the values to physical units).
+\item [nuwt\_bulk\_stats] Ordered hash table containing the bulk statistics (such as number of threads and waves found) as well as the mean, median, and stddev of the basic wave parameters (log-normal values are also included). See appendix A.6 for more information concerning using the ordered hash table.
+\end{labeling}
+
+More information about the keys available in the output structure can be found by typing, \\
+
+\hspace{0.5cm}\texttt{IDL\textgreater help, STRUCTURE\_NAME} \\
+
+in the IDL command line (remember, you may need extract the desired element from the top-level list first). You may also get more information by reading the header text of the \textit{nuwt\_locate\_things.pro}, \textit{nuwt\_follow\_threads.pro}, and \textit{nuwt\_apply\_fft.pro} programs in the \textit{/NUWT subfolder}. See appendix A for more details concerning the structure of the output results.\\
+
+\subsection{Flattening Structures}
+Since NUWT can return multiple (and differing numbers of) waves for each thread, the format of the \textit{nuwt\_fft\_peaks} structure is somewhat unwieldy and can make it difficult to produce certain summary plots (such as a scatter plot of ALL non-zero wave amplitudes, regardless of thread number or wave order). Therefore, the \textit{flatten\_nuwt\_results} function is provided to, as the name suggests, flatten the wave parameters into 1D arrays. You do not need to restore the NUWT results to the COMMON blocks before calling \textit{flatten\_nuwt\_results}. \\
+
+Example use, \\
+
+\hspace{0.5cm} \texttt{IDL\textgreater nuwt\_params = flatten\_nuwt\_results('filename')} \\
+
+
+If \textit{filename} is omitted, the results for the currently active NUWT run will be returned instead. \textit{Flatten\_nuwt\_results} can also convert the wave parameters into the units of your choice be setting the \textit{amp\_units}, \textit{freq\_units}, and \textit{period\_units} keywords (defaults are ''km'', ''Hz'', and ''s'', respectively) The output structure includes arrays of thread indices and wave order numbers in order to easily reference the extra details in the original NUWT output structures and allow for filtering to be done with a simple \textit{where()} function call.
+
+
+%%%%%%%%%%%%%%%
+\section{To do}
+Below is a list of upgrades that are under consideration for future implementation. This list is not exclusive and items on the list may or may not actually be included in new versions of the code. If you find any bugs or have suggestions for improvements, please let us know so that we may update this list.\\
+\begin{itemize}
+\item Included the Lomb-Scargle periodogram as an alternative to the FFT method when analysing data with uneven temporal sampling
+\item Apply FFTs to smaller, overlapping subsections of each thread to test for time variance in the wave parameters (note: this will reduce the accuracy of the wave frequencies) 
+\item Expand the goodness-of-fit testing and improve the automatic quality filtering.
+\item Add a tutorial section to this manual.
+\end{itemize}
+
+
+%\renewcommand{\theHsection}{A\arabic{section}}
+\appendix
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Appendix A: NUWT Output Structures}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\subsection{located} 
+Structure of 2D arrays with the intensity values and sub-pixel locations of the local maxima (or minima) found in the input td-diagram (note: locations are given in units of pixels). Created by the \textit{nuwt\_locate\_things.pro} routine. The format is as follows:
+
+\begin{labeling}{.km\_per\_arcsec}
+\item [.peaks] [nx,nt,2] or [nx,nt,6] array with sub-pixel locations and
+ maximum values at each located peak (in [pixels]) \\
+\verb|[*,*,0]| - sub-pixel location of each peak \\
+\verb|[*,*,1]| - maximum intensity value at each peak \\
+\verb|[*,*,2]| - Gaussian width (/full\_gauss only) \\
+\verb|[*,*,3]| - constant coeff (/full\_gauss only) \\
+\verb|[*,*,4]| - slope of linear term (/full\_gauss only) \\
+\verb|[*,*,5]| - i index of maximum data point (/full\_gauss only) \\
+\item [.errs] [nx,nt] or [nx,nt,6] array with errors on the fit values.
+Format is similar to .peaks (but for the errors instead)
+\item [.allpeaks] [nx,nt] array containing integer flags for ALL local maxima.
+The values are as follows: \\
+1 - local peak rejected by chosen gradient \\
+2 - Gaussian fit failed. Defaulted to whole pixels \\
+3 - Gaussian fit obtained for subpixel resolution \\
+\item [.grad\_left] [nx,nt] array with the gradient values on the
+lefthand side of ALL potential peaks
+\item [.grad\_right] same as as the above but for right-hand side gradients
+\item [.td\_img] td-diagram AFTER any inversion or despiking operations are applied
+\item [.inverted] binary flag indicating if the image was inverted
+.despiked - binary flag indicating id the image was despiked
+.spike\_sigma
+\item [.smoothed] binary flag indicating if the image was smoothed over time before
+locating peaks
+\item [.sm\_width] bin widths used for smoothing in each dimension. A value of 1 indicates 
+no smoothing in the corresponding dimension
+\item [.dx ] [pixels] to [.units\_dx] conversion factor
+\item [.units\_dx] desired distance units after after multiplying the pixel location by .dx
+\item [.dt] [timesteps] to [.units\_dt] conversion factor
+\item [.units\_dx] desired time units resulting from after multiplying the timestep number by .dt
+\item [.res \& .cad ] source data resolution and cadence values given to NUWT by the user
+\item [.km\_per\_arcsec] [arcsec] to [km] conversion factor. Defaults to 725.27 km/arcsec, 
+which is the mean scale of the solar surface as viewed from 1 AU.
+\end{labeling}
+
+
+%%%%%%%%%%%%%%%%%%%%
+\subsection{threads}
+Array of structures with the time series with the positions of the ''threads'' connected and tracked by NUWT. Created by the \textit{nuwt\_follow\_threads.pro} routine. Each thread structure (array element) has the following format:
+
+\begin{labeling}{.start\_bin}
+\item[.pos] [nt] long array with the thread position at each timestep.
+Values of -1 indicate timesteps outside of the thread and
+a 0 indicates timesteps skipped due to no nearby peaks
+\item[.err\_pos] [nt] long array with the thread position errors
+\item[.bin\_flags] [nt] array with flags indicating the type of peak
+found in each timestep of the thread. Possible values are: \\
+-1 : time-step not part of thread \\
+0 : data gap inside thread \\
+1 : lower quality data found (not currently used but
+may be used in the future for filling with rejected peaks) \\
+2 : higher quality data found \\
+\item[.start\_bin] timestep bin with the first thread position
+\item[.end\_bin] timestep bin with the last thread position
+\item[.length] total length (in timesteps) of the thread
+\end{labeling}
+If \textit{run\_nuwt.pro} was run with the \textit{/FULL\_GAUSS} option set,
+the output structures will also include the following tags:
+\begin{labeling}{.err\_inten}
+\item[.inten] [nt] long array with the peak intensity values
+\item[.err\_inten] [nt] long array with the estimated intensity errors
+\item[.wid] [nt] long array with the Gaussian width found by the
+subpixel fitting method of \textit{locate\_things.pro}
+\item[.err\_wid] [nt] long array with the Gaussian fit errors
+\end{labeling}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection{fft\_spec}
+List of structures with the frequency spectra output by the FFT for each thread (note: will automatically convert the spectra to physically sensible units if \textit{res} and \textit{cad} are given to NUWT at runtime). Created by the \textit{nuwt\_apply\_fft.pro} routine. The format of each list element (i.e. substructure) is described below ). Please note: \textbf{(a)} \textit{nf} is the number of frequency bins in the FFT spectrum for the given thread. The number of frequency bins depends on the number of datapoints in the thread and the amount of zero padding (if used), therefore \textit{nf} will be different for each thread. \textbf{(b)} error values are only calculated is \textit{run\_nuwt.pro} is ran with the \textit{/BOOTSTRAP} option set. Otherwise, all errors in both \textit{fft\_spec} and \textit{fft\_peaks} will default to values of 0. 
+
+\begin{labeling}{.trend\_poly\_degree}
+\item[.power] [nf] array of the corrected power spectral density in each FFT bin
+\item[.err\_power] [nf] array with the power errors computed using bootstrapping
+\item[.power\_units] Output power units. Defaults to [km\^2 s] if \textit{res} \& \textit{cad} are known and [pixels\^2 timesteps] if they are not.
+\item[.power\_to\_pxls] May be used to convert the power values back to units of [pixels\^2 timesteps] (in case you wish to recompute the units yourself)
+\item[.amplitude] [nf] array with the amplitude value calculated from the power spectral density above
+\item[.err\_amplitude] [nf] array with the amplitude error values computed using bootstrapping
+\item[.amp\_units] Output amplitude units. Defaults to [km] is \textit{res} is known and [pixels] if it is not.
+\item[.amp\_to\_pxls] May be used to convert amplitude to units of [pixels]
+\item[.freq] [nf] array with the frequency in each FFT bin
+\item[.freq\_units] Output frequency units. Defaults to [Hz] is \textit{cad} is known and [timesteps] if it is not.
+\item[.freq\_to\_timesteps] May be used to convert frequencies to units of [timesteps]
+\item[.phase] [nf] array with the phase value in each FFT bin
+\item[.err\_phase] Phase errors computed using bootstrapping
+\item[.trend] [thread length] size array with the trend removed from the thread positions before applying the FFT. By default, the ''trend'' removed will simply be the mean position value (this is necessary since the FFT requires values to be given as perturbations from a zero)
+\item[.trend\_poly\_degree] Polynomial order of the removed trend. ''0'' indicates a constant mean value was removed and ''1'' indicates a linear fit.
+\item[.apod\_window] [thread length] size array with the apodization  (also known as ''tapering'') window values. Apodization is important as it helps reduce spectral leakage between FFT bins. 
+\item[.window\_func] Name of the window function used. Defaults to the ''split\_cosine\_bell'' (also known as the ''hann'') window. Other window functions may be added in future versions of the code.
+\item[.window\_param] Parameter value(s) that modify the window function.
+\item[.signif\_vals] [nf] array with the significant power threshold used for selecting waves.
+\item[.fft\_length] Length of the array input to the FFT (including zeros). Note, this value is \underline{not} the same as \textit{nf}
+\item[.signif\_test] Method used to compute the significance values. Defaults to a method adapted from Torrence \& Compo 1998, \textit{Bul. Amer. Met. Soc. (BAMS)} which uses a white noise spectrum computed from the input data
+\item[.signif\_level] Significance level used. Defaults to 0.95 (i.e. the 95\% confidence level)
+\item[.bin\_flags] [nf] array indicating which frequency bins have values above the significance threshold. Key: \\
+-2 : invalid thread (too little real data) \\
+-1 : empty or invalid frequency bin \\
+0 : power below selected significance level \\
+1 : significant value above the selected threshold \\
+2 : local maximum among adjacent significant values (these are the waves selected by NUWT)
+\item[.enbw] Effective Noise Bandwidth. Used to correctly scale the power spectrum and calculate amplitude values.
+\item[.cpg] Coherent Power Gain of the apodization window
+\end{labeling}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{fft\_peaks} 
+Array of structures with the wave parameters for all of the significant peaks found in the FFT spectra. Up to four different waves may be returned for each thread. (again, if NUWT knows \textit[res] and \textit[cad], it will convert the values to physical units). Created by the \textit{nuwt\_apply\_fft.pro} routine.
+
+\begin{labeling}{.err\_peak\_amplitude}
+\item[.analysis\_method] Method used to apply the FFT and identify wave parameters. Currently, ''FFT'' is the only analysis method used (eventually, new methods will be added) 
+\item[.peak\_power] Peak power of the significant waves in order of magnitude. The first value corresponds to the largest peak, the second value represents the second largest peak, and so on and so forth. Values of 0.0 indicate that no wave of that particular order was found. 
+\item[.err\_peak\_power] Peak power errors computed using bootstrapping
+\item[.power\_units] Output power units. Defaults to [km\^2 s] if \textit{res} \& \textit{cad} are known and [pixels\^2 timesteps] if they are not.
+\item[.power\_to\_pxls] May be used to convert amplitude to units of [pixels]
+\item[.peak\_amplitude] Peak wave displacement amplitudes
+\item[.err\_peak\_amplitude] Peak amplitude errors computed using bootstrapping
+\item[.amp\_units] Output amplitude units. Defaults to [km] is \textit{res} is known and [pixels] if it is not.
+\item[.amp\_to\_pxls] May be used to convert amplitude to units of [pixels]
+\item[.peak\_freq] Peak wave frequencies
+\item[.freq\_units] Output frequency units. Defaults to [Hz] is \textit{cad} is known and [timesteps] if it is not.
+\item[.freq\_to\_timesteps] May be used to convert frequencies to units of [timesteps]
+\item[.peak\_vel\_amp] Peak wave velocity amplitudes. Calculated using the equation $v = 2\pi\xi f$ where $\xi$ is the displacement amplitude and \textit{f} is the frequency.
+\item[.vel\_amp\_units] Output velocity amplitude units. Defaults to [km]/[s] if res and cad are known and [pixels]/[timesteps] if they are not.
+\item[.peak\_phase] Peak wave phase
+\item[.err\_peak\_phase] Peak phase errors computed using bootstrapping
+\item[.peak\_bin] FFT bin number of each significant peak.
+\item[.adjacent\_peaks] [EXPERIMENTAL] Binary flag indicating if adjacent FFT bins may be selected as separate waves. By default, only local maxima in the FFT spectrum may be selected as a wave (assuming it is above the significance threshold)
+\item[.num\_signif\_peaks] Total number of significant peaks found in the FFT spectrum. Note: this number may include peaks that fall below the minium frequency cutout value. 
+\item[.num\_saved\_waves] Number of waves selected and saved in this structure 
+\item[.signif\_level] Significance level used. Defaults to 0.95 (i.e. the 95\% confidence level)
+\item[.KS\_stat] Kolmogorov–Smirnov one-sample test statistic. The stat computed from the residuals after removing the first N waves combined is stored in the i = N position. In other words, the 1st result (index 0) is the stats for the null case of \underline{no} waves, the 2nd (index 1) results is for the first wave, the 3rd (index 2) is for the first \underline{two} waves inclusive, and so on and so forth...
+\item[.KS\_prob] Probability that the residuals are normally distributed as detected by the KS test statistic (which is sensitive to skewness and shifts in the median value and may yield incorrect probabilities).
+\item[.AD\_stat] Anderson-Darling test statistic. Alternative to the KS-test which also tests for normally distributed residuals. Order of values is similar to the \textit{KS\_stat}
+\item[.AD\_crit] Critical value for the Anderson-Darling test
+\item[.LB\_stat] Ljung-Box statistic which tests for autocorrelation in the residuals  
+\item[.LB\_chisqrd] Ljung-Box critical value (which is based on a $\chi^2$ distribution)
+\item[.enbw] Effective Noise Bandwidth. Used to correctly scale the power spectrum and calculate amplitude values.
+\item[.user\_qual\_flag] User quality flag set using the \textit{/INTERACTIVE} mode of \textit{set\_nuwt\_qual\_flags.pro}
+\item[.auto\_qual\_flag] Automatically generated quality flag. Currently, only flagged based on the percent of data gaps in the thread (this may change in future versions of the code). \\
+1 : 35\% - 50\% data points are missing (ok quality) . Note: threads with \textgreater 50\% data gaps are rejected by NUWT.\\
+2 : \textless 35\% data points are missing (best quality)
+\end{labeling}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{bulk\_stats}
+Ordered hash table containing the bulk statistics (such as number of threads and waves found) as well as the mean, median, and stddev of the basic wave parameters (log-normal values are also included). Note: the use of a hash table may be unfamiliar to some IDL users, the values can be accessed by using the syntax \texttt{TABLE\_NAME['stat\_name']} (this allows for \textit{stat\_name} to be constructed programmatically while looping over different parameters and summary statistics). Keys included in the \textit{bulk\_stats} hash table are given below. \newline
+
+\textbf{Miscellaneous counts and values:}
+\begin{labeling}{'filtered\_num\_waves'} 
+\item['num\_threads'] Total number of threads found by NUWT (including threads without waves)
+\item['num\_waves'] Total number of waves identified by NUWT, regardless of quality flags
+\item['filtered\_num\_waves'] Number of waves in the selected quality flag range
+\item['wave\_counts'] Array giving the number of threads with N waves \underline{or more}. That is, the first (index 0) is the number of threads with zero waves, the second value (index 1) is the number of threads with at least one wave, the third value (index 2) is the number of threads with two or more waves, and so on and so forth.
+\item['user\_flag\_range'] Range of user quality flags included
+\item['auto\_flag\_range'] Range of auto quality flags included
+\item['wave\_order\_range'] Range of wave order numbers included in the calculations \newline
+\end{labeling}
+
+
+\textbf{Short variable names:} (must be used in conjunction with the full statistic names)
+\begin{labeling}{'vel\_amp'}
+\item['amp'] Wave displacement amplitude
+\item['period'] Wave periods
+\item['freq'] Wave frequency
+\item['vel\_amp'] Wave velocity amplitude calculated using the equation $v = 2\pi\xi f$ where $\xi$ is the displacement amplitude and \textit{f} is the frequency.\newline
+\end{labeling}
+
+\textbf{Full statistic names:} To reference the actual values of the statistics in the table, replace ''VAR'' in the list below with one of the short variable names given above. \textbf{Note well:} only non-zero waves of the selected quality range are used to calculate the statistics below. Detected threads without significant waves are \underline{not} included in the calculations. 
+\begin{labeling}{'log\_norm\_VAR\_stddev'}
+\item['VAR\_mean'] Arithmetic mean of the selected variable for all good quality waves
+\item['VAR\_stddev'] Standard deviation
+\item['VAR\_median'] Median value of the selected variable
+\item['VAR\_MAD'] Median absolute deviation
+\item['log\_norm\_VAR\_mean'] Log-normal mean calculated using the equation $EXP(\mu + (\sigma^2)/2.0)$ where $\mu = \Sigma ln(x)/N$ and $\sigma = ((N-1)/N)*STDDEV(ln(x))$, and $N$ is the total number of values   
+\item['log\_norm\_VAR\_stddev'] Log-normal standard deviation calculated using $SQRT((EXP(\sigma^2) - 1)*EXP(2*\mu+\sigma^2))$
+\item['log\_norm\_VAR\_mode'] Log-normal mode calculated using $EXP(\mu - \sigma^2)$
+\item['VAR\_units'] Units of the selected variable
+\end{labeling}
+
+
+
+\section{Appendix B: Program Headers}
+\subsection{\textit{run\_nuwt.pro}}
+\lstinputlisting[lastline=98]{../automation/run_nuwt.pro}
+
+\subsection{\textit{plot\_nuwt\_peaks.pro}}
+\lstinputlisting[lastline=77]{../plotting/plot_nuwt_peaks.pro}
+
+\subsection{\textit{plot\_nuwt\_wave\_hist.pro}}
+\lstinputlisting[lastline=99]{../plotting/plot_nuwt_wave_hist.pro}
+
+\subsection{\textit{plot\_nuwt\_fft\_results.pro}}
+\lstinputlisting[lastline=69]{../plotting/plot_nuwt_fft_results.pro}
+\end{document}
